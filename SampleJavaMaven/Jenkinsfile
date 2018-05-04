@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    stages {
+        stage('Source') { // Get code
+            steps {
+                echo "---Stage Source has been called------"
+                sh 'rm -rf CICD-Demo-Project'
+                // get code from our Git repository
+                git 'https://github.com/ajobayer/CICD-Demo-Project.git'
+            }
+        }
+        stage('Change Directory to SampleJavaMaven'){
+            steps {
+                dir('SampleJavaMaven'){
+                    sh 'pwd && ls -la'
+                }
+            }
+        }
+        stage('Compile') { // Compile and do unit testing
+            steps {
+                // run Gradle to execute compile and unit testing
+                echo "---Stage Compile has been called------"
+                sh 'pwd && ls -la'
+                sh '/usr/local/bin/mvn compile'
+            }
+        }
+        stage('Build') {
+            steps {
+                // run Gradle to execute compile and unit testing
+                echo "---Stage Build has been called------"
+                sh '/usr/local/bin/mvn package'
+            }
+        }
+        stage('Test') {
+            steps {
+                // run Gradle to execute compile and unit testing
+                echo "---Stage Build has been called------"
+                sh '/usr/local/bin/mvn test'
+            }
+        }
+        stage('Results') {
+            steps{
+                junit '**/target/surefire-reports/TEST-*.xml'
+                archiveArtifacts 'target/*.jar'
+            }
+       }
+    }
+}
